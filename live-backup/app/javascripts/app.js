@@ -19,7 +19,28 @@ import voting_artifacts from '../../build/contracts/Voting.json'
 
 var Voting = contract(voting_artifacts);
 
-let candidates = {"Rama": "candidate-1", "Nick": "candidate-2", "Jose": "candidate-3"}
+web3.version.getNetwork((err, netId) => {
+  switch (netId) {
+    case "1":
+      console.log('This is mainnet')
+      break
+    case "2":
+      console.log('This is the deprecated Morden test network.')
+      break
+    case "3":
+      console.log('This is the ropsten test network.')
+      break
+    default:
+      console.log('This is an unknown network.')
+  }
+})
+
+console.log('you are using -', web3.eth.accounts[0]);
+
+// var unlockAccount =  web3.personal.unlockAccount(web3.eth.accounts[0], 'Treatment201!').then(function(res){
+//   console.log('res', res);
+// });
+// console.log('account unlocked', unlockAccount);
 
 // window.voteForCandidate = function(candidate) {
 //   let candidateName = $("#candidate").val();
@@ -76,7 +97,7 @@ window.getERC20 = function(){
       console.log('erc20 decimals is:', v);
     });
     contractInstance._totalSupply.call().then(function(v) {
-      console.log('erc20 _totalSupply is:', v);
+      console.log('erc20 _totalSupply is:', v.toString());
     });
     contractInstance.owner.call().then(function(v) {
       console.log('erc20 owner is:', v);
@@ -99,7 +120,7 @@ window.withdraw = function(_amount) {
 window.getBalance = function(_address) {
   Voting.deployed().then(function(contractInstance) {
     contractInstance.getBalance.call(_address).then(function(v) {
-      console.log('_address Balance is:', v);
+      console.log('_address Balance is:', v.toString());
     });
   });
 }
@@ -150,7 +171,7 @@ window.checkAsset = function(_assetTkn) {
 
 window.sellAsset = function(_assetTkn, _amount) {
   Voting.deployed().then(function(contractInstance) {
-    contractInstance.sellAsset(_assetTkn, _amount, {gas: 140000, from: web3.eth.accounts[2]}).then(function(v) {
+    contractInstance.sellAsset(_assetTkn, _amount, {gas: 140000, from: web3.eth.accounts[0]}).then(function(v) {
       contractInstance.checkHoldingAsset.call(_assetTkn).then(function(v) {
         console.log('Now holding ', v, "of " + _assetTkn);
       });
@@ -160,7 +181,7 @@ window.sellAsset = function(_assetTkn, _amount) {
 
 window.buyAsset = function(_assetTkn, _amount) {
   Voting.deployed().then(function(contractInstance) {
-    contractInstance.holdAsset(_assetTkn, _amount, {gas: 140000, from: web3.eth.accounts[2]}).then(function(v) {
+    contractInstance.holdAsset(_assetTkn, _amount, {gas: 140000, from: web3.eth.accounts[0]}).then(function(v) {
       contractInstance.checkHoldingAsset.call(_assetTkn).then(function(v) {
         console.log('Now holding ', v, "of " + _assetTkn);
       });
@@ -202,11 +223,11 @@ $( document ).ready(function() {
   } else {
     console.warn("No web3 detected. Falling back to http://localhost:8545. You should remove this fallback when you deploy live, as it's inherently insecure. Consider switching to Metamask for development. More info here: http://truffleframework.com/tutorials/truffle-and-metamask");
     // fallback - use your fallback strategy (local node / hosted node + in-dapp id mgmt / fail)
-    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8545"));
+    window.web3 = new Web3(new Web3.providers.HttpProvider("http://localhost:8547"));
   }
 
   Voting.setProvider(web3.currentProvider);
-  let candidateNames = Object.keys(candidates);
+  //let candidateNames = Object.keys(candidates);
   // for (var i = 0; i < candidateNames.length; i++) {
   //   let name = candidateNames[i];
   //   Voting.deployed().then(function(contractInstance) {
